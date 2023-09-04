@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\NotificationTypeEnum;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Confirmation\ConfirmRequest;
 use App\Http\Requests\Confirmation\VerifyRequest;
 use App\Jobs\SendNotification;
@@ -18,7 +17,7 @@ class ConfirmationController extends Controller
 {
     /**
      * Форма с выбором способов получения одноразового кода
-     * Форма ведет на confirmation.confirm
+     * Форма ведет на confirmation.confirm и содержит в себе данные юзера для отправки оповещения (email / номер телефона)
      *
      * @return View
      */
@@ -64,9 +63,12 @@ class ConfirmationController extends Controller
     public function verify(VerifyRequest $request, ConfirmationCodesService $confirmationCodesService): RedirectResponse
     {
         if (!$confirmationCodesService->verify($request->user()->id, $request->code)) {
-            return redirect()->back();
+            return redirect()->back()->withErrors([
+                'confirmation_code' => __('confirmation.verification_wrong') // Введенный код неверен
+            ]);
         }
 
+        // Сохраняем флаг подтверждения кода
         $request->session()->put('code_confirmed', 1);
 
         return redirect(route('user.settings.update.notificationType.submit'));
