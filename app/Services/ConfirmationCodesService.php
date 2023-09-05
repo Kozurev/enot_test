@@ -17,6 +17,7 @@ class ConfirmationCodesService
 
     /**
      * Проверка кода подтверждения
+     * P.S. можно хранить коды в виде хеша для большей безопасности
      *
      * @param int $userId
      * @param string $code
